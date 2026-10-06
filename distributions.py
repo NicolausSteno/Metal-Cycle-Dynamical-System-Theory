@@ -140,14 +140,19 @@ def integrated_absolute_error(
 
     This is dimensionless. IAE/2 is the total variation distance.
     """
-    return float(np.trapz(np.abs(approx - target), x))
+    # np.trapz was removed in NumPy 2.x; np.trapezoid is its replacement.
+    _trapz = getattr(np, "trapezoid", None) or np.trapz
+    return float(_trapz(np.abs(approx - target), x))
 
 
 # ---------------------------------------------------------------------
 # Common assumptions
 # ---------------------------------------------------------------------
 
-x = np.linspace(0, 60, 2401)
+# Evaluation grid. The IAE is defined over [0, inf); the grid runs to 500 years
+# so the slow exponential tails are integrated in full (spacing 0.025 yr, as
+# before). The figures still show only 0-60 years via xlim.
+x = np.linspace(0, 500, 20001)
 
 alpha_9 = 0.02
 alpha_18 = 0.01
@@ -167,7 +172,7 @@ k_mid_agg = m_mid / tau_agg
 erlang_mid_aggregate = erlang_pdf(x, m_mid, k_mid_agg)
 
 # Erlang m=33: best approximation by matching CV = sigma/tau = 0.175.
-# For Erlang, CV = 1/sqrt(m), so m \uc0\u8776  (tau/sigma)^2 = 1/0.175^2 \u8776  32.65.
+# For Erlang, CV = 1/sqrt(n), so n ~ (tau/sigma)^2 = 1/0.175^2 ~ 32.65.
 m_best = int(round((tau_agg / sigma_agg) ** 2))
 k_best_agg = m_best / tau_agg
 erlang_best_aggregate = erlang_pdf(x, m_best, k_best_agg)
@@ -191,16 +196,16 @@ for _, row in df.iterrows():
     gloser_sectoral += w_i * normal_pdf(x, tau_i, sigma_i)
 
     # Sectoral mixed exponential:
-    # g(a) = sum_i w_i alpha_{9,i} exp(-alpha_{9,i} a),
-    # alpha_{9,i} = 1/tau_i.
+    # g(l) = sum_z w_z mu_z exp(-mu_z l),
+    # mu_z = alpha_{9,z} + alpha_{18,z} = 1/tau_z (total exit rate of sector z).
     mixed_exponential_sectoral += w_i * exp_pdf(x, 1.0 / tau_i)
 
     # Sectoral Erlang m=5:
-    # g(a) = sum_i w_i Erlang(a; m=5, k_i=5/tau_i).
+    # g(l) = sum_z w_z Erlang(l; n_z=5, kappa_z=5/tau_z).
     erlang_mid_sectoral += w_i * erlang_pdf(x, m_mid, m_mid / tau_i)
 
     # Sectoral Erlang m=33:
-    # g(a) = sum_i w_i Erlang(a; m=33, k_i=33/tau_i).
+    # g(l) = sum_z w_z Erlang(l; n_z=33, kappa_z=33/tau_z).
     erlang_best_sectoral += w_i * erlang_pdf(x, m_best, m_best / tau_i)
 
 
@@ -344,10 +349,10 @@ summary = {
         "k": k_best_agg,
     },
     "sectoral_Erlang_mid": {
-        "formula": "sum_i w_i * Erlang(a; m=5, k_i=5/tau_i)",
+        "formula": "sum_z w_z * Erlang(l; n_z=5, kappa_z=5/tau_z)",
     },
     "sectoral_Erlang_best": {
-        "formula": f"sum_i w_i * Erlang(a; m={m_best}, k_i={m_best}/tau_i)",
+        "formula": f"sum_z w_z * Erlang(l; n_z={m_best}, kappa_z={m_best}/tau_z)",
     },
     "sectoral_best_m_by_IAE_scan": {
         "m": int(m_best_sectoral_by_iae),
@@ -413,7 +418,7 @@ plt.plot(
     color=COL["erl_m5"],
     linewidth=2.0,
     linestyle="-.",
-    label=r"Erlang, $n_{c}=5$, $k=0.200$",
+    label=rf"Erlang, $n={m_mid}$, $\kappa={k_mid_agg:.2f}$",
 )
 
 plt.plot(
@@ -422,12 +427,12 @@ plt.plot(
     color=COL["erl_m33"],
     linewidth=2.3,
     linestyle="--",
-    label=rf"Erlang, $n_{{c}}={m_best}$, $k={k_best_agg:.3f}$",
+    label=rf"Erlang, $n={m_best}$, $\kappa={k_best_agg:.2f}$",
 )
 
 plt.xlim(0, 60)
 plt.ylim(bottom=0)
-plt.xlabel(r"Lifetime / discard age, $a$ (years)")
+plt.xlabel(r"Lifetime / discard age, $\ell$ (years)")
 plt.ylabel("Probability density")
 plt.title("Aggregate distribution")
 plt.legend(**legend_kwargs)
@@ -464,7 +469,7 @@ plt.plot(
     color=COL["mixexp"],
     linewidth=2.0,
     linestyle=":",
-    label=r"Mixed exponential, $w_i$, $\alpha_{9,i}=1/\tau_i$",
+    label=r"Mixed exponential, $w_z$, $\mu_z=1/\tau_z$",
 )
 
 plt.plot(
@@ -473,7 +478,7 @@ plt.plot(
     color=COL["erl_m5"],
     linewidth=2.0,
     linestyle="-.",
-    label=r"Erlang, $n_{c}=5$, $k_i=n_{c}/\tau_i$",
+    label=rf"Erlang, $n_z={m_mid}$, $\kappa_z=n_z/\tau_z$",
 )
 
 plt.plot(
@@ -482,12 +487,12 @@ plt.plot(
     color=COL["erl_m33"],
     linewidth=2.3,
     linestyle="--",
-    label=rf"Erlang, $n_{{c}}={m_best}$, $k_i=n_{{c}}/\tau_i$",
+    label=rf"Erlang, $n_z={m_best}$, $\kappa_z=n_z/\tau_z$",
 )
 
 plt.xlim(0, 60)
 plt.ylim(bottom=0)
-plt.xlabel(r"Lifetime / discard age, $a$ (years)")
+plt.xlabel(r"Lifetime / discard age, $\ell$ (years)")
 plt.ylabel("Probability density")
 plt.title("Sectoral distribution")
 plt.legend(
