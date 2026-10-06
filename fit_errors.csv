@@ -1,0 +1,8 @@
+case,approximation,IAE,IAE/2
+aggregate,Fixed exponential,1.335085839,0.66754292
+aggregate,Erlang m=5,0.85601586,0.42800793
+aggregate,Erlang m=33,0.088628079,0.044314039
+sectoral,Fixed exponential,0.493196821,0.24659841
+sectoral,Mixed exponential,0.624020213,0.312010106
+sectoral,Erlang m=5,0.308458067,0.154229033
+sectoral,Erlang m=33,0.028543784,0.014271892

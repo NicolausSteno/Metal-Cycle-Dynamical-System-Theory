@@ -1,0 +1,17 @@
+broad_sector,subsector,tau,sigma,weight
+Building & Construction,Plumbing,40.0,7.0,0.06542056074766354
+Building & Construction,Building Plant,40.0,7.0,0.06542056074766354
+Building & Construction,Architecture,50.0,8.75,0.06542056074766354
+Building & Construction,Communications,30.0,5.25,0.06542056074766354
+Building & Construction,Electrical Power,40.0,7.0,0.06542056074766354
+Infrastructure,Telecommunications,30.0,5.25,0.07009345794392523
+Infrastructure,Power Utility,30.0,5.25,0.07009345794392523
+Industrial,Electrical Industrial,15.0,2.625,0.07009345794392523
+Industrial,Non Electrical Industrial,20.0,3.5,0.07009345794392523
+Transport,Electrical Automotive,12.0,2.0999999999999996,0.03426791277258567
+Transport,Non Electrical Automotive,15.0,2.625,0.03426791277258567
+Transport,Other Transport,25.0,4.375,0.03426791277258567
+Consumer & Electronics,Consumer,8.0,1.4,0.07242990654205607
+Consumer & Electronics,Cooling,10.0,1.75,0.07242990654205607
+Consumer & Electronics,Electronic,5.0,0.875,0.07242990654205607
+Consumer & Electronics,Diverse,10.0,1.75,0.07242990654205607
