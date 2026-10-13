@@ -80,7 +80,7 @@ Zenodo) carried no licence.
 
 Gambaro, N. (2026). NicolausSteno/Metal-Cycle-Dynamical-System-Theory: Code for
 analytical solution and sensitivity analysis of ODE model for anthropogenic
-metal cycles: Erlang product lifetime distributions (Version v2). Zenodo.
-<https://doi.org/10.5281/zenodo.23188406>
+metal cycles: Erlang product lifetime distributions (Version v2.1.1). Zenodo.
+<https://doi.org/10.5281/zenodo.23271318>
 
 Please also cite the thesis chapter.
